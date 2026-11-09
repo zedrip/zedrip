@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZEDRIP - Tienda Oficial</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f5f0e8;color:#111;text-align:center}
+header{background-image:url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80');background-size:cover;background-position:center;padding:70px 22px 50px 22px;color:#fff;position:relative;border-radius:0 0 28px 28px;overflow:hidden}
+header::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.58)}
+header *{position:relative;z-index:1}
+header h1{font-size:44px;margin:0 0 15px 0;letter-spacing:3px;font-weight:900}
+header p{font-size:15px;line-height:1.6;max-width:520px;margin:0 auto 20px auto}
+.btn-learn{background:#fff;color:#000;border:0;padding:10px 28px;border-radius:30px;font-weight:bold;font-size:14px;cursor:pointer}
+.wrap{max-width:1100px;margin:0 auto;padding:15px}
+.search{display:flex;gap:10px;background:#fff;border-radius:30px;padding:12px 15px;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,0.08);margin-top:-25px;position:relative;z-index:2;text-align:left}
+.search input{border:0;outline:0;flex:1;font-size:15px;background:transparent}
+.cats{display:flex;gap:8px;overflow-x:auto;padding:15px 0;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{white-space:nowrap;background:#fff;border:1px solid #ddd;padding:9px 18px;border-radius:25px;cursor:pointer;font-size:14px}
+.cat.active{background:#111;color:#fff}
+.tools{display:flex;gap:10px;margin-bottom:15px}
+.tools select{flex:1;background:#fff;border:1px solid #ddd;padding:10px;border-radius:25px;font-size:14px;cursor:pointer}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06)}
+.card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#eee}
+.card-info{padding:10px 12px 12px 12px;text-align:left}
+.card-info b{font-size:14px;display:block}
+.card-info span{color:#555;font-size:14px}
+.add{margin-top:8px;width:100%;background:#111;color:#fff;border:0;padding:9px;border-radius:20px;font-weight:bold;cursor:pointer}
+.add.agotado{background:#ccc;color:#666}
+.tag{font-size:11px;background:#00e676;padding:3px 8px;border-radius:10px;font-weight:bold}
+.tag.rojo{background:#ff5252;color:#fff}
+.foot{text-align:center;padding:25px 15px;color:#666;font-size:14px;line-height:1.6}
+.cart-btn{position:fixed;bottom:20px;right:20px;background:#111;color:#fff;padding:14px 20px;border-radius:30px;font-weight:bold;border:0;cursor:pointer;box-shadow:0 5px 20px rgba(0,0,0,0.3);z-index:99}
+.cart-box{position:fixed;bottom:80px;right:15px;left:15px;max-width:420px;margin:auto;background:#fff;border-radius:20px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,0.3);display:none;z-index:100;max-height:70vh;overflow:auto;text-align:left}
+.yape{background:#fff3cd;border:1px dashed #e6a800;padding:14px;border-radius:15px;margin-top:15px}
+@media(min-width:700px){.grid{grid-template-columns:1fr 1fr 1fr} header h1{font-size:62px} header{padding:90px 20px 70px 20px}}
+@media(min-width:1000px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>ZEDRIP</h1>
+  <p>En ZEDRIP encontrarás ropa urbana para hombre pensada para el día a día, cómoda, actual y fácil de combinar. La propuesta mezcla básicos versátiles con piezas de calle para lograr looks con personalidad, sin complicaciones.</p>
+  <button class="btn-learn" onclick="document.getElementById('catalogo').scrollIntoView({behavior:'smooth'})">Learn More</button>
+</header>
+<div class="wrap">
+  <div class="search">🔍 <input id="buscador" placeholder="Buscar en ZEDRIP..." oninput="render()"></div>
+  <div class="cats" id="cats"></div>
+  <div class="tools">
+    <select id="orden" onchange="render()"><option value="">⇅ Ordenar</option><option value="menor">Menor precio</option><option value="mayor">Mayor precio</option><option value="nombre">Por nombre A-Z</option></select>
+    <select id="filtroStock" onchange="render()"><option value="">▽ Filtrar: Todos</option><option value="disponible">Solo Disponibles</option><option value="agotado">Solo Agotados</option></select>
+  </div>
+  <div id="catalogo"><div class="grid" id="grid"></div></div>
+  <div class="foot"><b>ZEDRIP viste tu día a día con prendas urbanas, cómodas y listas para marcar tu estilo en Perú.</b><br><br>Paga con Yape: <b>982 123 456 - TU NOMBRE AQUÍ</b><br>© ZEDRIP 2026</div>
+</div>
+<button class="cart-btn" onclick="abrirCarrito()">🛒 <span id="totalCarrito">S/ 0.00</span></button>
+<div class="cart-box" id="cartBox">
+  <h3>🛒 Tu Carrito</h3>
+  <div id="itemsCarrito">Vacío todavía</div>
+  <h3 id="totalTexto">Total: S/ 0.00</h3>
+  <div class="yape"><b>💜 PAGA CON YAPE</b><br>Yape: 982 123 456<br>Nombre: TU NOMBRE AQUÍ<br>Yapea y manda tu captura</div>
+  <br><button class="add" onclick="pedirWhatsApp()">PEDIR POR WHATSAPP</button>
+  <button class="add" style="background:#ddd;color:#111;margin-top:8px" onclick="cerrarCarrito()">Cerrar</button>
+</div>
+<script>
+const MI_WHATSAPP = "51982123456";
+const MI_YAPE = "982 123 456";
+let productos = [
+  {nombre:"Chaqueta Bomber", precio:49.99, categoria:"Hoodies", disponible:true, foto:"https://via.placeholder.com/400x400?text=Chaqueta+Bomber"},
+  {nombre:"Drip", precio:15.00, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Drip"},
+  {nombre:"Polo ZEDRIP Negro #3", precio:70, categoria:"Polos", disponible:false, foto:"https://via.placeholder.com/400x400?text=Polo+Negro"},
+  {nombre:"Polo ZEDRIP Blanco #4", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+Blanco"},
+  {nombre:"Polo ZEDRIP #5", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+5"},
+  {nombre:"Polo ZEDRIP #6", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+6"},
+  {nombre:"Polo ZEDRIP #7", precio:70, categoria:"Polos", disponible:false, foto:"https://via.placeholder.com/400x400?text=Polo+7"},
+  {nombre:"Polo ZEDRIP #8", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+8"},
+  {nombre:"Polo ZEDRIP #9", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+9"},
+  {nombre:"Polo ZEDRIP #10", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+10"},
+  {nombre:"Polo ZEDRIP #11", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+11"},
+  {nombre:"Polo ZEDRIP #12", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+12"},
+  {nombre:"Polo ZEDRIP #13", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+13"},
+  {nombre:"Polo ZEDRIP #14", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+14"},
+  {nombre:"Polo ZEDRIP #15", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+15"},
+  {nombre:"Polo ZEDRIP #16", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+16"},
+  {nombre:"Polo ZEDRIP #17", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+17"},
+  {nombre:"Polo ZEDRIP #18", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+18"},
+  {nombre:"Polo ZEDRIP #19", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+19"},
+  {nombre:"Polo ZEDRIP #20", precio:70, categoria:"Polos", disponible:true, foto:"https://via.placeholder.com/400x400?text=Polo+20"},
+  {nombre:"Pantalón ZEDRIP #21", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+21"},
+  {nombre:"Pantalón ZEDRIP #22", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+22"},
+  {nombre:"Pantalón ZEDRIP #23", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+23"},
+  {nombre:"Pantalón ZEDRIP #24", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+24"},
+  {nombre:"Pantalón ZEDRIP #25", precio:120, categoria:"Pantalones", disponible:false, foto:"https://via.placeholder.com/400x400?text=Pantalon+25"},
+  {nombre:"Pantalón ZEDRIP #26", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+26"},
+  {nombre:"Pantalón ZEDRIP #27", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+27"},
+  {nombre:"Pantalón ZEDRIP #28", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+28"},
+  {nombre:"Pantalón ZEDRIP #29", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+29"},
+  {nombre:"Pantalón ZEDRIP #30", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+30"},
+  {nombre:"Pantalón ZEDRIP #31", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+31"},
+  {nombre:"Pantalón ZEDRIP #32", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+32"},
+  {nombre:"Pantalón ZEDRIP #33", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+33"},
+  {nombre:"Pantalón ZEDRIP #34", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+34"},
+  {nombre:"Pantalón ZEDRIP #35", precio:120, categoria:"Pantalones", disponible:true, foto:"https://via.placeholder.com/400x400?text=Pantalon+35"},
+  {nombre:"Gorra ZEDRIP #36", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+36"},
+  {nombre:"Gorra ZEDRIP #37", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+37"},
+  {nombre:"Gorra ZEDRIP #38", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+38"},
+  {nombre:"Gorra ZEDRIP #39", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+39"},
+  {nombre:"Gorra ZEDRIP #40", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+40"},
+  {nombre:"Gorra ZEDRIP #41", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+41"},
+  {nombre:"Gorra ZEDRIP #42", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+42"},
+  {nombre:"Gorra ZEDRIP #43", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+43"},
+  {nombre:"Gorra ZEDRIP #44", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+44"},
+  {nombre:"Gorra ZEDRIP #45", precio:45, categoria:"Gorras", disponible:true, foto:"https://via.placeholder.com/400x400?text=Gorra+45"},
+  {nombre:"Hoodie ZEDRIP #46", precio:130, categoria:"Hoodies", disponible:true, foto:"https://via.placeholder.com/400x400?text=Hoodie+46"},
+  {nombre:"Hoodie ZEDRIP #47", precio:130, categoria:"Hoodies", disponible:true, foto:"https://via.placeholder.com/400x400?text=Hoodie+47"},
+  {nombre:"Hoodie ZEDRIP #48", precio:130, categoria:"Hoodies", disponible:true, foto:"https://via.placeholder.com/400x400?text=Hoodie+48"},
+  {nombre:"Hoodie ZEDRIP #49", precio:130, categoria:"Hoodies", disponible:true, foto:"https://via.placeholder.com/400x400?text=Hoodie+49"},
+  {nombre:"Hoodie ZEDRIP #50", precio:130, categoria:"Hoodies", disponible:true, foto:"https://via.placeholder.com/400x400?text=Hoodie+50"},
+];
+let catActual="Todos";let carrito=[];let categorias=["Todos",...new Set(productos.map(p=>p.categoria))];
+function renderCats(){document.getElementById("cats").innerHTML=categorias.map(c=>`<div class="cat ${c==catActual?'active':''}" onclick="catActual='${c}';renderCats();render()">${c}</div>`).join("")}
+function render(){let q=document.getElementById("buscador").value.toLowerCase();let lista=productos.filter(p=>(catActual=="Todos"||p.categoria==catActual)&&p.nombre.toLowerCase().includes(q));let f=document.getElementById("filtroStock").value;if(f=="disponible")lista=lista.filter(p=>p.disponible);if(f=="agotado")lista=lista.filter(p=>!p.disponible);let o=document.getElementById("orden").value;if(o=="menor")lista.sort((a,b)=>a.precio-b.precio);if(o=="mayor")lista.sort((a,b)=>b.precio-a.precio);if(o=="nombre")lista.sort((a,b)=>a.nombre.localeCompare(b.nombre));document.getElementById("grid").innerHTML=lista.map(p=>`<div class="card"><img src="${p.foto}"><div class="card-info"><b>${p.nombre}</b><span>S/ ${p.precio.toFixed(2)}</span><br><span class="tag ${p.disponible?'':'rojo'}">${p.disponible?'● DISPONIBLE':'● AGOTADO'}</span><button class="add ${p.disponible?'':'agotado'}" onclick="agregar('${p.nombre}',${p.precio})" ${p.disponible?'':'disabled'}>${p.disponible?'AGREGAR 🛒':'AGOTADO'}</button></div></div>`).join("")||"<p>No hay productos</p>"}
+function agregar(n,p){carrito.push({nombre:n,precio:p});actualizarCarrito()}
+function actualizarCarrito(){let total=carrito.reduce((s,x)=>s+x.precio,0);document.getElementById("totalCarrito").innerText="S/ "+total.toFixed(2);document.getElementById("totalTexto").innerText="Total: S/ "+total.toFixed(2);document.getElementById("itemsCarrito").innerHTML=carrito.length?carrito.map((x,i)=>`${x.nombre} - S/ ${x.precio.toFixed(2)} <button onclick="carrito.splice(${i},1);actualizarCarrito()">❌</button><br>`).join(""):"Vacío todavía"}
+function abrirCarrito(){document.getElementById("cartBox").style.display="block"}
+function cerrarCarrito(){document.getElementById("cartBox").style.display="none"}
+function pedirWhatsApp(){let total=carrito.reduce((s,x)=>s+x.precio,0);let msg="Hola ZEDRIP, quiero pedir:%0A"+carrito.map(x=>"- "+x.nombre+" S/ "+x.precio).join("%0A")+"%0A%0ATotal: S/ "+total.toFixed(2)+"%0AYa yapeé a "+MI_YAPE;window.open("https://wa.me/"+MI_WHATSAPP+"?text="+msg)}
+renderCats();render();
+</script>
+</body>
+  </html>

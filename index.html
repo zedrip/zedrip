@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZEDRIP</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#000;color:#fff}
+header{height:100vh;background:url('fondo.jpg.jpg') center/cover no-repeat;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background-color:#000}
+header h1{font-size:70px;letter-spacing:5px;text-shadow:2px 2px 10px #000;cursor:pointer}
+header p{margin-top:10px;font-size:18px;text-shadow:1px 1px 5px #000}
+.btn{background:#fff;color:#000;padding:12px 25px;border-radius:25px;font-weight:bold;text-decoration:none;margin-top:20px;display:inline-block}
+.barra{background:#111;padding:12px;text-align:center;font-size:14px}
+.barra span{color:#25D366;font-weight:bold}
+.seccion{padding:20px}
+.seccion h2{text-align:center;margin-bottom:15px}
+#contenedor-productos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#111;border-radius:15px;padding:12px;text-align:center}
+.card img{width:100%;height:180px;object-fit:cover;border-radius:10px;background:#222}
+.card h3{margin:10px 0 5px;font-size:15px}
+.card p{font-weight:bold;margin-bottom:8px}
+.card button{background:#fff;border:none;padding:9px 15px;border-radius:20px;font-weight:bold;width:100%}
+footer{background:#111;padding:25px;text-align:center;margin-top:20px}
+footer a{color:#25D366;text-decoration:none;font-weight:bold}
+#carrito{position:fixed;bottom:15px;right:15px;background:#fff;color:#000;padding:12px 18px;border-radius:25px;font-weight:bold;z-index:100;box-shadow:0 5px 15px rgba(0,0,0,.5)}
+#admin-panel{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:#fff;z-index:9999;overflow:auto;padding:20px}
+#admin-panel input{width:100%;padding:13px;margin:6px 0;border-radius:10px;border:none;font-size:16px}
+#admin-panel button{width:100%;padding:14px;border:none;border-radius:10px;font-weight:bold;font-size:16px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<header>
+<h1 id="logo-zedrip">ZEDRIP</h1>
+<p>Ropa urbana | Lima - Perú</p>
+<a class="btn" href="#productos">VER PRODUCTOS</a>
+</header>
+
+<div class="barra">Yape: <span>982 586 652</span> | Envíos a todo Lima</div>
+
+<div class="seccion" id="productos">
+<h2>NUESTROS PRODUCTOS</h2>
+<div id="contenedor-productos"></div>
+<p id="sin-productos" style="text-align:center;color:#888;margin-top:15px;">Aún no hay productos. Aplasta 7 veces ZEDRIP para agregar.</p>
+</div>
+
+<footer>
+<p>Pedidos por WhatsApp</p>
+<a href="https://wa.me/51982586652">📱 982 586 652 - ESCRÍBENOS</a>
+<p style="margin-top:15px;color:#666;font-size:12px;">© ZEDRIP 2026</p>
+</footer>
+
+<div id="carrito" onclick="verCarrito()">🛒 Carrito: S/ <span id="total-carrito">0</span></div>
+
+<div id="admin-panel">
+<h2>Panel ZEDRIP - Solo Tú</h2>
+<p>Agrega tu producto:</p>
+<input id="p-nombre" placeholder="Nombre: Polo Negro Oversize">
+<input id="p-precio" type="number" placeholder="Precio: 55">
+<input id="p-foto" placeholder="Foto: pega link de foto o nombre ej. polo1.jpg">
+<button onclick="agregarProducto()" style="background:#25D366;">GUARDAR PRODUCTO</button>
+<h3 style="margin-top:20px;">Mis productos:</h3>
+<div id="lista-admin"></div>
+<button onclick="cerrarAdmin()" style="background:#333;color:#fff;">CERRAR PANEL</button>
+</div>
+
+<script>
+let carritoTotal = 0;
+let clicksZedrip = 0;
+let tiempoClick = 0;
+let elLogo = document.getElementById('logo-zedrip');
+elLogo.addEventListener('click', function(){
+  let ahora = Date.now();
+  if(ahora - tiempoClick > 2000) clicksZedrip = 0;
+  tiempoClick = ahora;
+  clicksZedrip++;
+  if(clicksZedrip === 7){
+    clicksZedrip = 0;
+    let pass = prompt('Contraseña admin:');
+    if(pass === '05052008'){
+      document.getElementById('admin-panel').style.display = 'block';
+      mostrarAdmin();
+    } else { alert('Contraseña incorrecta'); }
+  }
+});
+function getProductos(){ return JSON.parse(localStorage.getItem('zedrip_productos') || '[]'); }
+function agregarProducto(){
+  let n = document.getElementById('p-nombre').value;
+  let p = document.getElementById('p-precio').value;
+  let f = document.getElementById('p-foto').value;
+  if(!n || !p){ alert('Pon nombre y precio'); return; }
+  let arr = getProductos();
+  arr.push({nombre:n, precio:p, foto:f});
+  localStorage.setItem('zedrip_productos', JSON.stringify(arr));
+  document.getElementById('p-nombre').value='';
+  document.getElementById('p-precio').value='';
+  document.getElementById('p-foto').value='';
+  mostrarAdmin(); mostrarProductosTienda();
+  alert('Producto guardado!');
+}
+function borrarProducto(i){
+  let arr = getProductos(); arr.splice(i,1);
+  localStorage.setItem('zedrip_productos', JSON.stringify(arr));
+  mostrarAdmin(); mostrarProductosTienda();
+}
+function mostrarAdmin(){
+  let arr = getProductos(); let html='';
+  arr.forEach((pr,i)=>{
+    html += '<div style="background:#111;padding:12px;border-radius:10px;margin:8px 0;">'+pr.nombre+' - S/ '+pr.precio+' <button onclick="borrarProducto('+i+')" style="background:red;color:#fff;width:auto;padding:6px 12px;float:right;">Borrar</button></div>';
+  });
+  document.getElementById('lista-admin').innerHTML = html || 'Aún no hay productos';
+}
+function agregarCarrito(precio){
+  carritoTotal += parseInt(precio);
+  document.getElementById('total-carrito').innerText = carritoTotal;
+  alert('Agregado al carrito');
+}
+function verCarrito(){
+  if(carritoTotal===0){ alert('Tu carrito está vacío'); return; }
+  let msg = 'Hola ZEDRIP, quiero comprar por S/ ' + carritoTotal;
+  window.open('https://wa.me/51982586652?text='+encodeURIComponent(msg));
+}
+function mostrarProductosTienda(){
+  let cont = document.getElementById('contenedor-productos');
+  let arr = getProductos();
+  document.getElementById('sin-productos').style.display = arr.length ? 'none' : 'block';
+  let html='';
+  arr.forEach((pr)=>{
+    html += '<div class="card"><img src="'+(pr.foto||'')+'"><h3>'+pr.nombre+'</h3><p>S/ '+pr.precio+'</p><button onclick="agregarCarrito('+pr.precio+')">Agregar</button></div>';
+  });
+  cont.innerHTML = html;
+}
+window.onload = function(){ mostrarProductosTienda(); }
+</script>
+</body>
+</html>

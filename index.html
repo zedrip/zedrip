@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZEDRIP - Admin</title>
+<style>
+*{box-sizing:border-box;font-family:Arial}body{background:#0a0a0a;color:#fff;padding:16px}
+.box{max-width:900px;margin:auto;background:#fff;color:#111;border-radius:18px;padding:20px}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:6px 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+.btn{padding:13px;border:none;border-radius:999px;font-weight:900;cursor:pointer;width:100%}
+.btn-green{background:#25D366;color:#fff}.btn-dark{background:#111;color:#fff}
+.item{border:1px solid #ddd;padding:10px;border-radius:12px;margin:8px 0;display:flex;gap:10px;align-items:center}
+.item img{width:60px;height:60px;object-fit:cover;border-radius:8px}
+</style>
+</head>
+<body>
+<div class="box" id="login">
+<h2>🔒 ZEDRIP - Panel Privado</h2>
+<p>Solo tú entras aquí.</p>
+<input type="password" id="pass" placeholder="Contraseña">
+<button class="btn btn-dark" onclick="entrar()">ENTRAR</button>
+<p style="font-size:13px;color:#888">Contraseña: zedrip123</p>
+</div>
+<div class="box" id="panel" style="display:none">
+<h2>⚙️ Editar Catálogo ZEDRIP</h2>
+<p>Esto lo ves solo tú. Los clientes no lo ven.</p>
+<div class="row">
+<input id="a_nombre" placeholder="Nombre Ej: Polo Oversize ZEDRIP">
+<input id="a_precio" type="number" placeholder="Precio Ej: 59.90">
+</div>
+<div class="row">
+<input id="a_foto1" placeholder="Link foto 1">
+<input id="a_foto2" placeholder="Link foto 2">
+</div>
+<div class="row">
+<select id="a_cat"><option>Polos</option><option>Hoodies</option><option>Nuevos</option></select>
+<select id="a_disp"><option value="1">Disponible ✅</option><option value="0">Agotado ❌</option></select>
+</div>
+<input id="a_tallas" value="S,M,L,XL" placeholder="Tallas Ej: S,M,L,XL">
+<button class="btn btn-green" onclick="guardarProducto()">+ Agregar / Actualizar Producto</button>
+<div id="lista"></div>
+<button class="btn btn-dark" onclick="location.href='/'">Ver mi tienda como cliente →</button>
+</div>
+<script>
+let productos = JSON.parse(localStorage.getItem('zedrip_productos')||'null') || [];
+let editId = null;
+function entrar(){
+if(document.getElementById('pass').value==='zedrip123'){
+document.getElementById('login').style.display='none';
+document.getElementById('panel').style.display='block';
+render();
+}else{alert('Contraseña incorrecta');}
+}
+function guardar(){localStorage.setItem('zedrip_productos',JSON.stringify(productos))}
+function render(){
+document.getElementById('lista').innerHTML='<h3>Tus productos:</h3>'+productos.map(p=>`<div class="item"><img src="${p.foto1}"><div style="flex:1"><b>${p.nombre}</b><br>S/ ${p.precio} - ${p.disp==1?'Disponible':'Agotado'}</div><button onclick="editar(${p.id})" style="padding:8px 12px;border-radius:8px;background:#111;color:#fff;border:none">Editar</button><button onclick="borrar(${p.id})" style="padding:8px 12px;border-radius:8px;background:#c00;color:#fff;border:none">Borrar</button></div>`).join('');
+}
+function editar(id){let p=productos.find(x=>x.id===id);editId=id;document.getElementById('a_nombre').value=p.nombre;document.getElementById('a_precio').value=p.precio;document.getElementById('a_foto1').value=p.foto1;document.getElementById('a_foto2').value=p.foto2;document.getElementById('a_cat').value=p.cat;document.getElementById('a_disp').value=p.disp;document.getElementById('a_tallas').value=p.tallas.join(',');window.scrollTo(0,0);}
+function borrar(id){if(!confirm('¿Borrar?'))return;productos=productos.filter(p=>p.id!==id);guardar();render();}
+function guardarProducto(){
+let nombre=document.getElementById('a_nombre').value.trim();
+let precio=parseFloat(document.getElementById('a_precio').value)||0;
+if(!nombre||!precio){alert('Pon nombre y precio');return;}
+let datos={nombre,precio,cat:document.getElementById('a_cat').value,disp:parseInt(document.getElementById('a_disp').value),foto1:document.getElementById('a_foto1').value||'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80',foto2:document.getElementById('a_foto2').value||document.getElementById('a_foto1').value,tallas:document.getElementById('a_tallas').value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean)};
+if(editId){let i=productos.findIndex(p=>p.id===editId);productos[i]={...productos[i],...datos};editId=null;}else{datos.id=Date.now();productos.push(datos);}
+guardar();render();alert('Guardado ✅');
+document.getElementById('a_nombre').value='';document.getElementById('a_precio').value='';
+}
+</script>
+</body>
+</html>
